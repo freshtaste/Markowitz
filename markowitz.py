@@ -21,6 +21,21 @@ class Markowitz(object):
     
     
     def vanilla(self, sigma):
+        """
+        The implementation of analytical solution to the problem with plug-in
+        estimates of variance and mean.
+
+        Parameters
+        ----------
+        sigma : float
+            The given risk level.
+
+        Returns
+        -------
+        w : np.array
+            The optimal weights.
+
+        """
         theta = self.mu.dot(np.linalg.inv(self.cov).dot(self.mu))
         w = sigma/np.sqrt(theta)* np.linalg.inv(self.cov).dot(self.mu)
         self.w = w/np.sum(w)
@@ -112,6 +127,19 @@ class Markowitz(object):
     
     
     def insample(self):
+        """
+        A brief test of the insample performance
+
+        Returns
+        -------
+        rp : np.array
+            Return of the portfolio.
+        mu : np.array
+            Mean return.
+        sigma : np.array
+            Standard deviation of the return.
+
+        """
         rp = self.w.dot(self.R)
         mu, sigma = np.mean(rp), np.sqrt(np.var(rp))
-        return mu, sigma
+        return rp, mu, sigma
