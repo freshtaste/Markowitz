@@ -67,10 +67,9 @@ class Markowitz(object):
         Rc = np.ones(self.T)*rc
         # 2. select lambda by cross validation
         kf = KFold(n_splits=kfolds, shuffle=False)
-        alphas = list()
-        for train_index, valid_index in kf.split(self.R.T):
-            alphas.append(Markowitz.est_and_valid(self.R.T[train_index], 
-                Rc[train_index], self.R.T[valid_index], sigma))
+        alphas = [Markowitz.est_and_valid(self.R.T[train_index], 
+                     Rc[train_index], self.R.T[valid_index], sigma)
+                         for train_index, valid_index in kf.split(self.R.T)]
         myAlpha = np.mean(alphas)
         # 3. solve optimal weights with the average best alpha
         lasso = linear_model.Lasso(alpha=myAlpha, fit_intercept=False)
