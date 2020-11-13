@@ -19,6 +19,7 @@ class Markowitz(object):
         self.T = R.shape[1]
         self.mu, self.cov = self.est_mean(), self.est_cov()
         self.w = None
+        self.method = None
     
     
     def vanilla(self, sigma):
@@ -40,6 +41,7 @@ class Markowitz(object):
         theta = self.mu.dot(np.linalg.inv(self.cov).dot(self.mu))
         w = sigma/np.sqrt(theta)* np.linalg.inv(self.cov).dot(self.mu)
         self.w = w/np.sum(w)
+        self.method = "Standard Plug-in estimator."
         return self.w
     
     
@@ -76,6 +78,7 @@ class Markowitz(object):
         lasso = linear_model.Lasso(alpha=myAlpha, fit_intercept=False)
         w = lasso.fit(self.R.T, Rc).coef_
         self.w = w/np.sum(w)
+        self.method = "MAXSER estimator without factor investing."
         return self.w
         
         
@@ -128,20 +131,21 @@ class Markowitz(object):
         return theta + adj
     
     
-    def insample(self):
+    def insample(self, risk_free_rate=None):
         """
         A brief test of the insample performance
 
         Returns
         -------
-        rp : np.array
-            Return of the portfolio.
-        mu : np.array
-            Mean return.
-        sigma : np.array
-            Standard deviation of the return.
+        result : dict
+            dictionary containing the metrics of insample performance
 
         """
         rp = self.w.dot(self.R)
         mu, sigma = np.mean(rp), np.sqrt(np.var(rp))
-        return rp, mu, sigma
+        if risk_free_rate:
+            sharpe = np.mean(rp - risk_free_rate)/sigma
+        else:
+            sharpe = "Risk free rate is not availabel."
+        result = {'mean return': mu, 'standard deviation': sigma, 'sharpe': sharpe}
+        return result
