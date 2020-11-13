@@ -1,6 +1,7 @@
 import numpy as np
 from sklearn import linear_model
 from sklearn.model_selection import KFold
+from utils import func_B
 
 
 class Markowitz(object):
@@ -122,7 +123,9 @@ class Markowitz(object):
     def est_sharp_ratio(self):
         theta_s = self.mu.dot(np.linalg.inv(self.cov).dot(self.mu))
         theta = ((self.T - self.N - 2)*theta_s - self.N)/self.T
-        return theta
+        adj = 2*np.power(theta_s, self.N/2)*np.power(1+theta_s, -(self.T-2)/2) \
+            / (self.T * func_B(theta_s/(1+theta_s), self.N/2, (self.T-self.N)/2))
+        return theta + adj
     
     
     def insample(self):
