@@ -149,3 +149,16 @@ class Markowitz(object):
             sharpe = "Risk free rate is not availabel."
         result = {'mean return': mu, 'standard deviation': sigma, 'sharpe': sharpe}
         return result
+
+
+def test_Markowitz(R, training_length, sigma):
+    T = R.shape[1]
+    Rp_m, Rp_v = list(), list()
+    for i in range(T-training_length-1):
+        R_train = R[:, i:i+training_length]
+        mark = Markowitz(R_train)
+        w_m = mark.maxser(sigma)
+        w_v = mark.vanilla(sigma)
+        Rp_m.append(R[:,i+training_length].dot(w_m))
+        Rp_v.append(R[:,i+training_length].dot(w_v))
+    return Rp_m, Rp_v
