@@ -39,8 +39,7 @@ class Markowitz(object):
 
         """
         theta = self.mu.dot(np.linalg.inv(self.cov).dot(self.mu))
-        w = sigma/np.sqrt(theta)* np.linalg.inv(self.cov).dot(self.mu)
-        self.w = w/np.sum(w)
+        self.w = sigma/np.sqrt(theta)* np.linalg.inv(self.cov).dot(self.mu)
         self.method = "Standard Plug-in estimator."
         return self.w
     
@@ -76,8 +75,7 @@ class Markowitz(object):
         myAlpha = np.mean(alphas)
         # 3. solve optimal weights with the average best alpha
         lasso = linear_model.Lasso(alpha=myAlpha, fit_intercept=False)
-        w = lasso.fit(self.R.T, Rc).coef_
-        self.w = w/np.sum(w)
+        self.w = lasso.fit(self.R.T, Rc).coef_
         self.method = "MAXSER estimator without factor investing."
         return self.w
         
@@ -125,7 +123,7 @@ class Markowitz(object):
     
     def est_sharp_ratio(self):
         theta_s = self.mu.dot(np.linalg.inv(self.cov).dot(self.mu))
-        theta = ((self.T - self.N - 2)*theta_s - self.N)/self.T
+        theta = (self.T - self.N - 2)*theta_s/self.T - self.N/self.T
         adj = 2*np.power(theta_s, self.N/2)*np.power(1+theta_s, -(self.T-2)/2) \
             / (self.T * func_B(theta_s/(1+theta_s), self.N/2, (self.T-self.N)/2))
         return theta + adj
@@ -161,4 +159,5 @@ def test_Markowitz(R, training_length, sigma):
         w_v = mark.vanilla(sigma)
         Rp_m.append(R[:,i+training_length].dot(w_m))
         Rp_v.append(R[:,i+training_length].dot(w_v))
-    return Rp_m, Rp_v
+    Rp_e = np.mean(R[:,training_length:], axis=0)
+    return Rp_m, Rp_v, Rp_e
